@@ -1,0 +1,11 @@
+= Rust SFEN
+
+Rust SFEN is a http://www.glaurungchess.com/shogi/usi.html[SFEN(Shogi Forsyth-Edwards Notation)] deserialization library.
+
+== License
+
+http://www.opensource.org/licenses/MIT[MIT]
+
+== Author
+
+- xmeta https://github.com/xmeta[github] https://twitter.com/x_meta[twitter]

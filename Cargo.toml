@@ -1,0 +1,10 @@
+[package]
+name = "sfen"
+version = "0.0.1"
+authors = ["xmeta"]
+license = "MIT"
+keywords = ["Shogi", "SFEN"]
+
+[lib]
+name = "sfen"
+path = "src/lib.rs"

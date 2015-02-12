@@ -1,0 +1,114 @@
+use super::{Cell, Player, PieceType};
+use std::collections::VecMap;
+
+#[export]
+root -> ((VecMap<(PieceType, Player)>, usize, usize), Player, Option<Vec<(PieceType, Player)>>, Option<usize>)
+  = b:board " "+ p:player " "+ cap:captured_pieces n:(" "+ n:num {n})? {
+      (b, p, cap, n)
+    }
+
+#[export]
+player -> Player
+  =  "b" { Player::First }
+   / "w" { Player::Second }
+
+#[export]
+captured_pieces -> Option<Vec<(PieceType, Player)>>
+  = "-" { None }
+   / koma:(count:num? types:(non_promotable_piece / promotable_piece) {
+    match count {
+        Some(x) => (x, types),
+        None => (1, types),
+      }})+
+      {
+        let mut vec = Vec::new();
+        for k in koma.iter() {
+          for i in range(0, k.0) {
+            vec.push(k.1);
+          }
+        }
+        Some(vec)
+      }
+
+#[export]
+board -> (VecMap<(PieceType, Player)>, usize, usize)
+  = l:row r:([/] r:row {r})* {
+  let mut vec = Vec::new();
+  vec.push(l.0);
+  let cols:usize = l.1;
+  for c in r.into_iter() {
+    if c.1 == cols {
+      vec.push(c.0);
+      }else{
+        panic!("The number of cols on the board is {}, but found {} cols", cols, c.1);
+      }
+    }
+    let mut vmap = VecMap::new();
+    for (i, r) in vec.iter().enumerate() {
+      for (key, value) in r.iter() {
+        let index = i*cols + key;
+        vmap.insert(index, *value);
+      }
+    }
+    (vmap, cols, vec.len())
+  }
+
+row -> (VecMap<(PieceType, Player)>, usize)
+  = cell:(space / koma_type)* {
+    let mut vmap = VecMap::new();
+    let mut count = 0;
+    for c in cell.iter() {
+      match *c {
+        Cell::Space(x) => { count+=x; continue },
+        Cell::Piece(x) =>  { vmap.insert(count, x); },
+      }
+      count += 1;
+    }
+    (vmap, count)
+  }
+
+koma_type -> Cell
+  = (t:[+]? k:promotable_piece {
+        let koma = if t != None {
+            let ktype:PieceType = k.0;
+            (ktype.promote().unwrap(), k.1)
+          } else {k};
+        Cell::Piece(koma)
+      })
+    / k:non_promotable_piece { Cell::Piece(k) }
+
+non_promotable_piece -> (PieceType, Player)
+  = [GgKk] {
+      match match_str {
+        "G" => (PieceType::GoldGeneral, Player::First),
+        "g" => (PieceType::GoldGeneral, Player::Second),
+        "K" => (PieceType::King, Player::First),
+        "k" => (PieceType::King, Player::Second),
+        _ => {panic!("syntax error");},
+      }
+    }
+
+promotable_piece -> (PieceType, Player)
+  = [PLNSBRplnsbr] {
+    match match_str {
+      "P" => (PieceType::Pawn, Player::First),
+      "L" => (PieceType::Lance, Player::First),
+      "N" => (PieceType::Knight, Player::First),
+      "S" => (PieceType::SilverGeneral, Player::First),
+      "R" => (PieceType::Rook, Player::First),
+      "B" => (PieceType::Bishop, Player::First),
+      "p" => (PieceType::Pawn, Player::Second),
+      "l" => (PieceType::Lance, Player::Second),
+      "n" => (PieceType::Knight, Player::Second),
+      "s" => (PieceType::SilverGeneral, Player::Second),
+      "r" => (PieceType::Rook, Player::Second),
+      "b" => (PieceType::Bishop, Player::Second),
+      _ => { panic!(match_str.to_string()) } // TODO
+    }
+  }
+
+space -> Cell
+  = n:num { Cell::Space(n) }
+
+num -> usize
+  = [0-9]+ { match_str.parse().unwrap() }
