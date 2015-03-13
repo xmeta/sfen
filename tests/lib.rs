@@ -1,3 +1,4 @@
+#![feature(collections)]
 extern crate sfen;
 use std::collections::VecMap;
 use sfen::Player::*;
