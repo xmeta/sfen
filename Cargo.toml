@@ -1,6 +1,6 @@
 [package]
 name = "sfen"
-version = "0.0.2"
+version = "0.0.3"
 authors = ["xmeta"]
 license = "MIT"
 keywords = ["Shogi", "SFEN"]
