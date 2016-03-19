@@ -1,6 +1,48 @@
 = Rust SFEN
 
-Rust SFEN is a http://www.glaurungchess.com/shogi/usi.html[SFEN(Shogi Forsyth-Edwards Notation)] deserialization library.
+Rust SFEN is a http://www.geocities.jp/shogidokoro/usi.html[SFEN(Shogi Forsyth-Edwards Notation)] deserialization library.
+
+image:https://travis-ci.org/xmeta/sfen.svg?branch=master["Build Status", link="https://travis-ci.org/xmeta/sfen"]
+image:https://img.shields.io/badge/license-MIT-blue.svg[MIT License]
+
+== Usage
+Add this to your Cargo.toml:
+
+[source, toml]
+----
+[dependencies]
+sfen = "0.0.6"
+----
+
+and this to your crate root:
+[source, rust]
+----
+extern crate sfen;
+----
+
+== SFEN specification
+[source, PEG]
+----
+sfen_record = board " " player " " captured_pieces (" "+ integer)?
+captured_pieces = "-" / (integer? piece)+
+player = "b" / "w"
+board = row (row_separator row)*
+row = (piece / integer)+
+integer = digit / nonzero_digit integer
+digit = "0" / nonzero_digit
+nonzero_digit = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+row_separator = "/"
+piece = king / gold / (promotion? ( rook / bishop / silver / knight / lance / pawn ))
+king = "K" / "k"
+gold = "G" / "g"
+rook = "R" / "r"
+bishop = "B" / "b"
+silver = "S" / "s"
+knight = "N" / "n"
+lance = "L" / "l"
+pawn = "P" / "p"
+promotion = "+"
+----
 
 == License
 
