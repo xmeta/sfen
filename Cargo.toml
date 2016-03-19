@@ -1,10 +1,10 @@
 [package]
 name = "sfen"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["xmeta"]
 license = "MIT"
 keywords = ["Shogi", "SFEN"]
 
-[lib]
-name = "sfen"
-path = "src/lib.rs"
+[dependencies]
+vec_map = "0.6.0"
+peg = "0.3.0"

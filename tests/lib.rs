@@ -1,6 +1,7 @@
-#![feature(collections)]
 extern crate sfen;
-use std::collections::VecMap;
+extern crate vec_map;
+use sfen::*;
+use vec_map::VecMap;
 use sfen::Player::*;
 use sfen::PieceType::*;
 
@@ -58,10 +59,16 @@ fn test_board() {
   board.insert(80, (Lance, First));
   assert_eq!((board, 9, 9), b.unwrap());
 }
+use std::collections::HashMap;
 #[test]
 fn test_captured_pieces() {
   let cap = sfen::captured_pieces("Sbgn3p");
-  let vec = vec![(SilverGeneral, First), (Bishop, Second), (GoldGeneral, Second),
-  (Knight, Second), (Pawn, Second), (Pawn, Second), (Pawn, Second)];
-  assert_eq!(Some(vec), cap.unwrap());
+  let mut first = HashMap::new();
+  first.insert(SilverGeneral, 1);
+  let mut second = HashMap::new();
+  second.insert(Bishop, 1);
+  second.insert(GoldGeneral, 1);
+  second.insert(Knight, 1);
+  second.insert(Pawn, 3);
+  assert_eq!((first, second), cap.unwrap());
 }

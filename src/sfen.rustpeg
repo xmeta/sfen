@@ -1,33 +1,33 @@
-use super::{Cell, Player, PieceType};
-use std::collections::VecMap;
+use core::{Player, PieceType, Cell};
+use vec_map::VecMap;
+use std::collections::HashMap;
 
 #[export]
-root -> ((VecMap<(PieceType, Player)>, usize, usize), Player, Option<Vec<(PieceType, Player)>>, Option<usize>)
-  = b:board " "+ p:player " "+ cap:captured_pieces n:(" "+ n:num {n})? {
-      (b, p, cap, n)
-    }
+root -> ((VecMap<(PieceType, Player)>, usize, usize), Player, (HashMap<PieceType, usize>, HashMap<PieceType, usize>), Option<usize>)
+  = b:board " "+ p:player " "+ cap:captured_pieces n:(" "+ n:num {n})? { (b, p, cap, n) }
 
 #[export]
 player -> Player
-  =  "b" { Player::First }
-   / "w" { Player::Second }
+  =  "b" { Player::First }  / "w" { Player::Second }
 
 #[export]
-captured_pieces -> Option<Vec<(PieceType, Player)>>
-  = "-" { None }
+captured_pieces -> (HashMap<PieceType, usize>, HashMap<PieceType, usize>)
+  = "-" { (HashMap::new(), HashMap::new()) }
    / koma:(count:num? types:(non_promotable_piece / promotable_piece) {
     match count {
         Some(x) => (x, types),
         None => (1, types),
       }})+
       {
-        let mut vec = Vec::new();
+        let mut map_first = HashMap::new();
+        let mut map_second = HashMap::new();
         for k in koma.iter() {
-          for i in range(0, k.0) {
-            vec.push(k.1);
+          match (k.1).1 {
+            Player::First =>  { map_first.insert((k.1).0, k.0); },
+            Player::Second => { map_second.insert((k.1).0, k.0); },
           }
         }
-        Some(vec)
+        (map_first, map_second)
       }
 
 #[export]
@@ -103,7 +103,7 @@ promotable_piece -> (PieceType, Player)
       "s" => (PieceType::SilverGeneral, Player::Second),
       "r" => (PieceType::Rook, Player::Second),
       "b" => (PieceType::Bishop, Player::Second),
-      _ => { panic!(match_str.to_string()) } // TODO
+      _ => { panic!(match_str.to_string()) }
     }
   }
 
